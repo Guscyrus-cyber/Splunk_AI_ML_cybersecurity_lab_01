@@ -12,36 +12,33 @@ Using Splunk Enterprise, participants ingest the dataset, perform searches, anal
 
 This project serves as the first hands-on AI/ML cybersecurity lab in the series and provides a foundation for future topics including anomaly detection, User and Entity Behavior Analytics (UEBA), phishing classification, malware classification, insider threat detection, and advanced threat hunting.\
 \
-**Dataset\
-\
-auth_ml_dataset.csv\
-\**
+**Dataset**
 
-\
-\
-\
-**Uploading to Splunk.\
-\
-\**
-\**
-Search: source="auth_ml_dataset.csv" host="MacBookPro" index="auth" sourcetype="auth_ml"**\
-\**
-Splunk successfully indexed 50 authentication events from the auth_ml_dataset.csv dataset through using the query “ source="auth_ml_dataset.csv" host="MacBookPro" index="auth" sourcetype="auth_ml". The screenshot displays the first five events as a sample to verify successful ingestion and field extraction before beginning the classification analysis.\
-\
-**\**
-\
-\
-.** Which account accumulated the highest number of failed logins across all events?**\**
+Name: auth_ml_dataset.csv
+
+Please refer to screenshot images # 1 and 2 
+
+
+**Uploading to Splunk**
+
+Please refer to screenshot image # 3
+
+
+Search: source="auth_ml_dataset.csv" host="MacBookPro" index="auth" sourcetype="auth_ml"
+
+Splunk successfully indexed 50 authentication events from the auth_ml_dataset.csv dataset through using the query “ source="auth_ml_dataset.csv" host="MacBookPro" index="auth" sourcetype="auth_ml". The screenshot displays the first five events as a sample to verify successful ingestion and field extraction before beginning the classification analysis.
+
+Please refer to screenshot # 4
+
+. Which account accumulated the highest number of failed logins across all events?
+
 using search:\
 index=auth sourcetype=auth_ml
+/| sort - failed_logins
+/| head 5
+/| table user failed_logins label
 
-\| sort - failed_logins
-
-\| head 5
-
-\| table user failed_logins label\
-\
-\
+Please refer to screenshot # 5
 
 | **User**  | **Failed Logins** | **Label** |
 |-----------|-------------------|-----------|
@@ -60,26 +57,22 @@ svc_admin (110 failed logins)\
 admin (95 failed logins)\
 So the admin accumulated the highest number of failed logins across all events.\
 \
-**.** Which authentication event had the highest number of failed logins?\
+. Which authentication event had the highest number of failed logins?\
 guest\
 \
-**.** Which accounts are labeled Attack?\
+. Which accounts are labeled Attack?\
 I identified multiple privileged and administrative accounts with unusually high failed login activity. All five events were labeled as **Attack**, indicating a strong likelihood of brute-force or password spraying activity. The accounts **guest**, **root**, **admin**, and **svc_admin** should be prioritized for investigation because attackers commonly target administrative accounts to gain unauthorized access to systems and sensitive resources.
 
-**.** Which users logged in from new IPs?\
+. Which users logged in from new IPs?\
 \
 Search:\
 index=auth sourcetype=auth_ml
 
+Please refer to screenshot images # 6 and 7
+
 new_ip="Yes"
 
 \| table user src_ip failed_logins successful_login_after_failures label
-
-### \
-\
-\
-\
-\
 
 I filtered authentication events where the new_ip field was set to **Yes**. Authentication activity originating from a new IP address may indicate legitimate user behavior, such as connecting from a different network, but it can also be a sign of account compromise or unauthorized access attempts. To determine the level of risk, I reviewed the failed login counts, successful logins after failures, and classification labels associated with each event.
 
@@ -108,15 +101,13 @@ These accounts generated high failed login counts ranging from **55 to 160 faile
 
 I determined that a new IP address alone is not sufficient to classify an event as malicious because several normal user accounts also logged in from new IP addresses. However, when a new IP address was combined with high failed login counts and successful logins after repeated failures, the likelihood of malicious activity increased significantly. The accounts **admin**, **root**, **guest**, and **svc_admin** exhibited the strongest indicators of potential brute-force attacks, password spraying activity, or account compromise and should be prioritized for investigation.
 
-**.** Which accounts may indicate a successful compromise after repeated failed login attempts?\
+. Which accounts may indicate a successful compromise after repeated failed login attempts?\
 \
 using this query:\
 index=auth sourcetype=auth_ml
-
 successful_login_after_failures="Yes"
-
 \| table user src_ip failed_logins label\
-\
-**\**
-\**
+
+Please refer to image # 8
+
 I identified seven authentication events where the dataset indicates that a successful authentication occurred after repeated failed login attempts. All matching events were labeled as **Attack** and involved high failed login counts ranging from 55 to 140 attempts. These events may represent successful brute-force attacks or account compromise attempts and should be prioritized for investigation.
